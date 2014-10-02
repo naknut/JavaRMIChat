@@ -6,4 +6,6 @@ import java.rmi.RemoteException;
  */
 public interface MessageHandler extends Remote {
     public void handleMessage(String message) throws RemoteException;
+    public String getNickname() throws RemoteException;
+    public void setNickname(String nickname) throws RemoteException;
 }

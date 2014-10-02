@@ -20,10 +20,64 @@ public class Server extends UnicastRemoteObject implements Chat {
         super();
     }
 
-    public void sendMessage(String message) throws RemoteException {
-        System.out.println(message);
+    public void sendMessage(String input, MessageHandler source) throws RemoteException {
+        System.out.println(input);
+        if(input.charAt(0)=='/'){   // Input is a command
+
+            if(input.startsWith("/quit")){
+                source.handleMessage("You used /quit command");
+            }
+            else if(input.startsWith("/who")){
+                source.handleMessage("You used /who command");
+            }
+            else if(input.startsWith("/nick")){
+                String[] parameters = input.split(" ");
+
+                if(parameters.length<2){ // No parameters
+                    source.handleMessage("Usage: /nick <nickname>");
+                    return;
+                }
+                String newName = parameters[1];
+
+                changeNickname(newName,source);
+
+                source.handleMessage("You used /nick command");
+            }
+            else if(input.startsWith("/help")){
+                String message = "The following commands are available:" +
+                        "\n/quit - disconnect this client"+
+                        "\n/who - view all connected users"+
+                        "\n/nick <nickname> - change your nick name"+
+                        "\n/help - list available commands";
+
+
+                source.handleMessage(message);
+            }
+            else{
+                source.handleMessage("You used an unknown command");
+            }
+
+        }
+
+       sendMessageToAllButSender(input,source);
+    }
+
+    private void changeNickname(String newName, MessageHandler client){
+        try {
+            client.setNickname(newName);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendMessageToAllButSender(String message, MessageHandler sender){
         for(MessageHandler messageHandler : messageHandlers) {
-            messageHandler.handleMessage(message);
+                try {
+                if(!messageHandler.getNickname().equals(sender.getNickname()))
+                    messageHandler.handleMessage(sender.getNickname()+": "+message);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
         }
     }
 

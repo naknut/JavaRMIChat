@@ -10,6 +10,9 @@ import java.util.Scanner;
  */
 public class Client extends UnicastRemoteObject implements MessageHandler {
 
+    private String nickname;
+
+
     public static void main(String[] args) {
         String uri = "rmi://" + args[0] + "/chat";
         try {
@@ -19,7 +22,7 @@ public class Client extends UnicastRemoteObject implements MessageHandler {
             Scanner scanner = new Scanner(System.in);
             while(true) {
                 String message = scanner.nextLine();
-                chat.sendMessage(message);
+                chat.sendMessage(message,client);
             }
         } catch (NotBoundException e) {
             e.printStackTrace();
@@ -32,7 +35,19 @@ public class Client extends UnicastRemoteObject implements MessageHandler {
 
     protected Client() throws RemoteException {
         super();
+        this.nickname="Unknown-"+java.util.UUID.randomUUID();
     }
+
+    @Override
+    public String getNickname(){
+        return nickname;
+    }
+
+    @Override
+    public void setNickname(String nickname){
+        this.nickname=nickname;
+    }
+
 
     @Override
     public void handleMessage(String message) throws RemoteException {

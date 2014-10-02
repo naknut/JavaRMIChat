@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class Client extends UnicastRemoteObject implements MessageHandler {
 
     private String nickname;
-    private Boolean running = true;
+    private static Boolean running = true;
 
     public static void main(String[] args) {
         String uri = "rmi://" + args[0] + "/chat";

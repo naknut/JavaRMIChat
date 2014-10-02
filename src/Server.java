@@ -25,7 +25,7 @@ public class Server extends UnicastRemoteObject implements Chat {
         if(input.charAt(0)=='/'){   // Input is a command
 
             if(input.startsWith("/quit")){
-                source.handleMessage("You used /quit command");
+                deregisterForNotification(source);
             }
             else if(input.startsWith("/who")){
                 source.handleMessage("You used /who command");
@@ -58,8 +58,9 @@ public class Server extends UnicastRemoteObject implements Chat {
             }
 
         }
-
-       sendMessageToAllButSender(input,source);
+        else{ // Input is an ordinary message
+            sendMessageToAllButSender(input,source);
+        }
     }
 
     private void changeNickname(String newName, MessageHandler client){

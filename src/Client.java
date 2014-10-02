@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class Client extends UnicastRemoteObject implements MessageHandler {
 
     private String nickname;
-
+    private Boolean running = true;
 
     public static void main(String[] args) {
         String uri = "rmi://" + args[0] + "/chat";
@@ -20,9 +20,11 @@ public class Client extends UnicastRemoteObject implements MessageHandler {
             Client client = new Client();
             chat.registerForNotification(client);
             Scanner scanner = new Scanner(System.in);
-            while(true) {
+            while(running) {
                 String message = scanner.nextLine();
                 chat.sendMessage(message,client);
+                if(message.equals("/quit"))
+                    running = false;
             }
         } catch (NotBoundException e) {
             e.printStackTrace();

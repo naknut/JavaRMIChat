@@ -10,21 +10,41 @@ import java.util.Scanner;
  */
 public class Client extends UnicastRemoteObject implements MessageHandler {
 
-    private String nickname;
+    private static String nickname;
     private static Boolean running = true;
 
     public static void main(String[] args) {
         String uri = "rmi://" + args[0] + "/chat";
+        nickname = args[1];
         try {
             Chat chat = (Chat) Naming.lookup(uri);
             Client client = new Client();
-            chat.registerForNotification(client);
+            System.out.println(chat.registerForNotification(client, client.getNickname()));
             Scanner scanner = new Scanner(System.in);
             while(running) {
                 String message = scanner.nextLine();
-                chat.sendMessage(message,client);
-                if(message.equals("/quit"))
+                if(message.equals("/quit")) {
                     running = false;
+                    chat.deregisterForNotification(client.getNickname());
+                }
+                else if(message.equals("/who"))
+                    System.out.println(chat.getUsernames());
+                else if(message.equals("/help"))
+                    System.out.println(chat.getHelp());
+                else if(message.startsWith("/nick")) {
+                    String[] tokens = message.split(" ");
+                    if(chat.changeNickname(tokens[1], nickname)) {
+                        nickname = tokens[1];
+                        System.out.println("Changed username to " + nickname);
+                    } else {
+                        System.out.println("Could not change username");
+                    }
+                }
+                else if(message.startsWith("/")) {
+                    System.out.println("Unknown command");
+                }
+                else
+                    chat.sendMessageToAllButSender(message, nickname);
             }
         } catch (NotBoundException e) {
             e.printStackTrace();
@@ -33,11 +53,11 @@ public class Client extends UnicastRemoteObject implements MessageHandler {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+        System.exit(0);
     }
 
     protected Client() throws RemoteException {
         super();
-        this.nickname="Unknown-"+java.util.UUID.randomUUID();
     }
 
     @Override
@@ -46,8 +66,8 @@ public class Client extends UnicastRemoteObject implements MessageHandler {
     }
 
     @Override
-    public void setNickname(String nickname){
-        this.nickname=nickname;
+    public void setNickname(String nickname) {
+        Client.nickname = nickname;
     }
 
 

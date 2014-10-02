@@ -6,5 +6,7 @@ import java.rmi.RemoteException;
  */
 public interface Chat extends Remote {
     public void sendMessage(String message) throws RemoteException;
-    public void messageCallback(String message) throws RemoteException;
+
+    public void registerForNotification(MessageHandler messageHandler) throws RemoteException;
+    public void deregisterForNotification(MessageHandler messageHandler) throws RemoteException;
 }

@@ -1,4 +1,6 @@
+import java.net.ConnectException;
 import java.net.MalformedURLException;
+import java.rmi.ConnectIOException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -19,6 +21,7 @@ public class Server extends UnicastRemoteObject implements Chat {
 
     protected Server() throws RemoteException {
         super();
+        System.out.println("Server started");
     }
 
     @Override
@@ -65,7 +68,10 @@ public class Server extends UnicastRemoteObject implements Chat {
                     if (!mhwu.getUsername().equals(sender))
                         mhwu.getMessageHandler().handleMessage(sender + ": " + message);
                 } catch (RemoteException e) {
-                    e.printStackTrace();
+                    mhwuList.remove(mhwu);
+                }
+                catch (Exception e){
+                    System.out.println("Exception throwned in snedMessageToAll");
                 }
             }
         }
